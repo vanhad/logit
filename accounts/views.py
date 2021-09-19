@@ -24,7 +24,7 @@ def register(request):
         return redirect('login')
 
     else:
-        return render(request, 'create-account.html')
+        return render(request, 'index.html')
 
 
 
