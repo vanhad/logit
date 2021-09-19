@@ -1,6 +1,7 @@
 from django.http.response import HttpResponse
 from django.shortcuts import render,redirect
-from django.contrib.auth.models import User, auth
+from .models import User
+# import jwt,datetime
 # Create your views here.
 def register(request):
     
@@ -13,10 +14,10 @@ def register(request):
         addressB = request.POST['addressB']
 
         if password == password2:
-            if User.objects.filter(username=username).exists():
+            if User.objects.filter(first_name=username).exists():
                 return HttpResponse('Username already taken')
             else:
-                user = User.objects.create_user(email=email, password=password, last_name=addressA+addressB, username=username)
+                user = User.objects.create(email=email, password=password, last_name=addressA+' '+addressB, first_name=username)
             user.save()
         else:
             return HttpResponse('Password not matching')
@@ -25,6 +26,31 @@ def register(request):
     else:
         return render(request, 'create-account.html')
 
-def login(request):
-    return render(request, 'login.html')
 
+
+def login(request):
+
+    if request.method == 'POST':
+        email = request.POST['email']
+        password = request.POST['password']
+
+        user = User.objects.filter(email=email).first()
+        if user is None:
+            return HttpResponse('Username not found')
+
+        if user.password!=password :
+            return HttpResponse('Wrong Password')
+        
+        # return redirect('userInfo',email)
+        return render(request,'userInfo.html',{'user':user})
+
+    return render(request,'login.html')
+
+
+
+# def userInfo(request, user_details):
+#     print(user_details)
+#     user = User.objects.filter(email=user_details).first()
+#     useremail = user.email()
+    
+#     return render(request,'userInfo.html',{'email':useremail})
